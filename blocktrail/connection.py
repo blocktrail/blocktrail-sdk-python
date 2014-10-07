@@ -2,9 +2,11 @@ import hashlib
 import datetime
 import requests
 
-import blocktrail
 from httpsig.requests_auth import HTTPSignatureAuth
 from requests.models import RequestEncodingMixin
+
+import blocktrail
+from blocktrail.exceptions import *
 
 
 EXCEPTION_INVALID_CREDENTIALS = "Your credentials are incorrect."
@@ -105,52 +107,3 @@ class RestClient(object):
         month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
                  "Oct", "Nov", "Dec"][dt.month - 1]
         return "%s, %02d %s %04d %02d:%02d:%02d GMT" % (weekday, dt.day, month, dt.year, dt.hour, dt.minute, dt.second)
-
-
-class BlockTrailSDKException(Exception):
-
-    def __init__(self, msg, code=None):
-        self.msg = msg
-        self.code = code
-
-    def __str__(self):
-        if self.code:
-            return "[%d] %s" % (self.code, self.msg)
-        else:
-            return self.msg
-
-
-class InvalidFormat(BlockTrailSDKException):
-    pass
-
-
-class EmptyResponse(BlockTrailSDKException):
-    pass
-
-
-class EndpointSpecificError(BlockTrailSDKException):
-    pass
-
-
-class UnknownEndpointSpecificError(BlockTrailSDKException):
-    pass
-
-
-class InvalidCredentials(BlockTrailSDKException):
-    pass
-
-
-class MissingEndpoint(BlockTrailSDKException):
-    pass
-
-
-class ObjectNotFound(BlockTrailSDKException):
-    pass
-
-
-class GenericHTTPError(BlockTrailSDKException):
-    pass
-
-
-class GenericServerError(BlockTrailSDKException):
-    pass

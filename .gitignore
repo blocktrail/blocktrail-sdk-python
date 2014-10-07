@@ -5,4 +5,4 @@
 /build/
 /dist/
 
-src/blocktrail*.egg-info
+blocktrail*.egg-info

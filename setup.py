@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name='blocktrail-sdk-python',
@@ -16,11 +16,11 @@ setup(
         'Programming Language :: Python',
         'License :: OSI Approved :: MIT License'
     ],
-    packages=find_packages("src"),
-    package_dir={'': 'src'},
+    packages=["blocktrail"],
     install_requires=[
         'httpsig >= 1.1.0',
         'pycrypto >= 2.6.1',
         'requests >= 2.4.3',
     ],
+    test_suite = "tests.get_tests",
 )

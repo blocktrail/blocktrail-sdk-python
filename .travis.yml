@@ -1,7 +1,6 @@
 language: python
 
 python:
-  - 2.6
   - 2.7
 
 install:
@@ -9,5 +8,5 @@ install:
  - "pip install pep8"
 
 script:
- - python -m tests
+ - python setup.py test
  - pep8 --ignore=E501 src/
