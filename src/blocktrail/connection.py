@@ -154,4 +154,3 @@ class GenericHTTPError(BlockTrailSDKException):
 
 class GenericServerError(BlockTrailSDKException):
     pass
-
