@@ -1,0 +1,8 @@
+*.pyc
+
+/venv/
+
+/build/
+/dist/
+
+src/blocktrail*.egg-info
