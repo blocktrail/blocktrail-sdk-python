@@ -9,4 +9,4 @@ install:
 
 script:
  - python setup.py test
- - pep8 --ignore=E501 src/
+ - pep8 --ignore=E501 ./blocktrail/
