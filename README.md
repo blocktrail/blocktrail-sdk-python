@@ -6,6 +6,7 @@ at https://www.blocktrail.com/api/docs
 
 [![Latest Stable Version](https://badge.fury.io/py/blocktrail-sdk-python.svg)](http://badge.fury.io/py/blocktrail-sdk-python)
 [![Build Status](https://travis-ci.org/blocktrail/blocktrail-sdk-python.png)](https://travis-ci.org/blocktrail/blocktrail-sdk-python)
+[![tip for next commit](https://tip4commit.com/projects/1011.svg)](https://tip4commit.com/github/blocktrail/blocktrail-sdk-python)
 
 Installation
 ------------
@@ -50,11 +51,9 @@ Community Donations & Contributions
 -----------------------------------
 This project supports community developers via http://tip4commit.com. If participating, developers will receive a Bitcoin tip for each commit that is merged to the master branch.
 
-Note: Core developers, who receive a tip, will donate those tips back to the project's tip jar. This includes all BlockTrail employees. While BlockTrail sponsors this project, it does not accept or receive any tips.
+Note: Core developers, who receive a tip, will donate those tips back to the project's tip jar. This includes all BlockTrail employees.
 
-If you'd like to support the community, add Bitcoins to the tip jar: <address>.
-
-[![tip for next commit](http://tip4commit.com/projects/214.svg)](http://tip4commit.com/projects/214)
+[![tip for next commit](https://tip4commit.com/projects/1011.svg)](https://tip4commit.com/github/blocktrail/blocktrail-sdk-python)
 
 Unit Tests
 ----------
