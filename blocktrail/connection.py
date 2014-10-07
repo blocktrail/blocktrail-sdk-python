@@ -20,35 +20,59 @@ EXCEPTION_OBJECT_NOT_FOUND = "The object you've tried to access does not exist."
 
 class RestClient(object):
     def __init__(self, api_endpoint, api_key, api_secret):
+        """
+        :param str      api_endpoint:   the base url to use for all API requests
+        :param str      api_key:        the API_KEY to use for authentication
+        :param str      api_secret:     the API_SECRET to use for authentication
+        """
         self.api_endpoint = api_endpoint
 
+        # create a default User-Agent
         self.default_headers = {
             'User-Agent': "%s/%s" % (blocktrail.SDK_USER_AGENT, blocktrail.SDK_VERSION)
         }
 
+        # api_key is always in the query string
         self.default_params = {
             'api_key': api_key
         }
 
+        # prepare HTTP-Signature Auth signer
         self.auth = HTTPSignatureAuth(key_id=api_key, secret=api_secret, algorithm='hmac-sha256',
                                       headers=['(request-target)', 'Date', 'Content-MD5'])
 
-    def get(self, endpoint_url, auth=None):
+    def get(self, endpoint_url, params=None, auth=None):
+        """
+        :param str      endpoint_url:   the API endpoint to request
+        :param dict     params:         query string params to add
+        :param bool     auth:           do HMAC auth
+        :rtype: requests.Response
+        """
         if auth is True:
             auth = self.auth
+
 
         headers = self.default_headers.copy().update({
             'Date': RestClient.httpdate(datetime.datetime.utcnow()),
             'Content-MD5': RestClient.content_md5("")
         })
 
-        params = self.default_params.copy()
+        _params = self.default_params.copy()
+        if params is not None:
+            _params.update(params)
+        params = _params
 
         response = requests.get(self.api_endpoint + endpoint_url, params=params, headers=headers, auth=auth)
 
         return RestClient.handle_response(response)
 
     def post(self, endpoint_url, data, auth=None):
+        """
+        :param str      endpoint_url:   the API endpoint to request
+        :param dict     data:           the POST body
+        :param bool     auth:           do HMAC auth
+        :rtype: requests.Response
+        """
         if auth is True:
             auth = self.auth
 
@@ -68,6 +92,12 @@ class RestClient(object):
 
     @classmethod
     def handle_response(cls, response):
+        """
+        helper function to handle the response and raise Exceptions
+
+        :param requests.Response   response:    the Response object to handle
+        :rtype: requests.Response
+        """
         if response.status_code == 200:
             if len(response.content) == 0:
                 raise EmptyResponse(EXCEPTION_EMPTY_RESPONSE)
