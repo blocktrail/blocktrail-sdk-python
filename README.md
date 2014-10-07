@@ -4,7 +4,6 @@ This is the BlockTrail Python SDK. This SDK contains methods for easily interact
 Below are examples to get you started. For additional examples, please see our official documentation
 at https://www.blocktrail.com/api/docs
 
-https://pypi.python.org/pypi?:action=display&name=blocktrail-sdk-python
 [![Latest Stable Version](https://badge.fury.io/py/blocktrail-sdk-python.svg)](http://badge.fury.io/py/blocktrail-sdk-python)
 [![Build Status](https://travis-ci.org/blocktrail/blocktrail-sdk-python.png)](https://travis-ci.org/blocktrail/blocktrail-sdk-python)
 
