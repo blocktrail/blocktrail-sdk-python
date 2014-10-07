@@ -10,7 +10,7 @@ class APIClient(object):
     def __init__(self, api_key, api_secret, network='BTC', testnet=False, api_version='v1', api_endpoint=None):
         if api_endpoint is None:
             network = ("t" if testnet else "") + network.upper()
-            api_endpoint = "http://api.blocktrail.localhost/%s/%s" % (api_version, network)
+            api_endpoint = "http://api.blocktrail.ngrok.com/%s/%s" % (api_version, network)
 
         self.client = connection.RestClient(api_endpoint, api_key, api_secret)
 
