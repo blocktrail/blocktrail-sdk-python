@@ -140,7 +140,7 @@ class APIClient(object):
     def transaction(self, txhash):
         """
         get a single transaction
-        
+
         :param str      txhash:          the transaction hash
         :rtype: dict
         """

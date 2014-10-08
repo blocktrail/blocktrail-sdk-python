@@ -4,14 +4,18 @@ import blocktrail
 
 
 class ApiClientTestCase(unittest.TestCase):
-    def setup_bad_api_client(self):
-        return blocktrail.APIClient("TESTKEY-FAIL", "TESTSECRET-FAIL", debug=False)
+    def setup_api_client(self, api_key="MYKEY", api_secret="MYSECRET", debug=True):
+        return blocktrail.APIClient(api_key, api_secret, debug=debug)
 
-    def setup_api_client(self):
-        return blocktrail.APIClient("MYKEY", "MYSECRET", debug=True)
+    def test_auth(self):
+        client = self.setup_api_client(api_secret="FAILSECRET", debug=False)
 
-    def test_signing(self):
-        client = self.setup_bad_api_client()
+        assert client.address("1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp")
+
+        with self.assertRaises(blocktrail.exceptions.InvalidCredentials):
+            client.verify_address("16dwJmR4mX5RguGrocMfN9Q9FR2kZcLw2z", "HPMOHRgPSMKdXrU6AqQs/i9S7alOakkHsJiqLGmInt05Cxj6b/WhS7kJxbIQxKmDW08YKzoFnbVZIoTI2qofEzk=")
+
+        client = self.setup_api_client(api_key="FAILKEY", debug=False)
 
         with self.assertRaises(blocktrail.exceptions.InvalidCredentials):
             client.verify_address("16dwJmR4mX5RguGrocMfN9Q9FR2kZcLw2z", "HPMOHRgPSMKdXrU6AqQs/i9S7alOakkHsJiqLGmInt05Cxj6b/WhS7kJxbIQxKmDW08YKzoFnbVZIoTI2qofEzk=")
@@ -22,7 +26,7 @@ class ApiClientTestCase(unittest.TestCase):
         except blocktrail.exceptions.InvalidCredentials:
             assert False, "InvalidCredentials raised"
         except Exception:
-            assert True, "Other Exception is fine"
+            assert True, "Other Exception is fine" # we're not testing verify_address, we're testing HMAC!
 
     def test_address(self):
         client = self.setup_api_client()
@@ -88,7 +92,7 @@ class ApiClientTestCase(unittest.TestCase):
         tx = client.transaction("4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b")
         assert tx and 'hash' in tx and 'confirmations' in tx
         assert tx['hash'] == "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"
-        assert 'enough_fee' not in tx
+        assert tx['enough_fee'] is None
 
         # random TX 1
         tx = client.transaction("c791b82ed9af681b73eadb7a05b67294c1c3003e52d01e03775bfb79d4ac58d1")
