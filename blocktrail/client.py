@@ -22,6 +22,8 @@ class APIClient(object):
 
     def address(self, address):
         """
+        get a single address
+
         :param str      address:        the address hash
         :rtype: dict
         """
@@ -31,6 +33,8 @@ class APIClient(object):
 
     def address_transactions(self, address, page=1, limit=20, sort_dir='asc'):
         """
+        get all transactions for an address (paginated)
+
         :param str      address:        the address hash
         :param int      page:           pagination page, starting at 1
         :param int      limit:          the amount of transactions per page, can be between 1 and 200
@@ -44,6 +48,8 @@ class APIClient(object):
 
     def address_unconfirmed_transactions(self, address, page=1, limit=20, sort_dir='asc'):
         """
+        get all unconfirmed transactions for an address (paginated)
+
         :param str      address:        the address hash
         :param int      page:           pagination page, starting at 1
         :param int      limit:          the amount of transactions per page, can be between 1 and 200
@@ -56,6 +62,8 @@ class APIClient(object):
 
     def address_unspent_outputs(self, address, page=1, limit=20, sort_dir='asc'):
         """
+        get all inspent outputs for an address (paginated)
+
         :param str      address:        the address hash
         :param int      page:           pagination page, starting at 1
         :param int      limit:          the amount of transactions per page, can be between 1 and 200
@@ -68,6 +76,8 @@ class APIClient(object):
 
     def verify_address(self, address, signature):
         """
+        verify ownership of an address
+
         :param str      address:        the address hash
         :param str      signature:      signature generated with PK with message being the :address
         :rtype: dict
@@ -78,6 +88,8 @@ class APIClient(object):
 
     def all_blocks(self, page=1, limit=20, sort_dir='asc'):
         """
+        get all blocks (paginated)
+
         :param int      page:            pagination page, starting at 1
         :param int      limit:           the amount of transactions per page, can be between 1 and 200
         :param str      sort_dir:        sorted ASC or DESC (on time)
@@ -89,12 +101,19 @@ class APIClient(object):
         return response.json()
 
     def block_latest(self):
+        """
+        get the latest block
+
+        :rtype: dict
+        """
         response = self.client.get("/block/latest")
 
         return response.json()
 
     def block(self, block):
         """
+        get a block
+
         :param str|int  block:           the block hash or block height
         :rtype: dict
         """
@@ -105,6 +124,8 @@ class APIClient(object):
 
     def block_transactions(self, block, page=1, limit=20, sort_dir='asc'):
         """
+        get all transactions for a block (paginated)
+
         :param str|int  block:           the block hash or block height
         :param int      page:            pagination page, starting at 1
         :param int      limit:           the amount of transactions per page, can be between 1 and 200
@@ -118,6 +139,8 @@ class APIClient(object):
 
     def transaction(self, txhash):
         """
+        get a single transaction
+        
         :param str      txhash:          the transaction hash
         :rtype: dict
         """
