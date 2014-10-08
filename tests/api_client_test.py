@@ -69,7 +69,7 @@ class ApiClientTestCase(unittest.TestCase):
         assert len(block_txs['data']) == 23
 
         # all blocks
-        blocks = client.blocks_all(page=2, limit=23)
+        blocks = client.all_blocks(page=2, limit=23)
         assert blocks and 'total' in blocks and 'data' in blocks
         assert len(blocks['data']) == 23
         assert 'hash' in blocks['data'][0]

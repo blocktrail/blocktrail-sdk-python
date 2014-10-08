@@ -76,7 +76,7 @@ class APIClient(object):
 
         return response.json()
 
-    def blocks_all(self, page=1, limit=20, sort_dir='asc'):
+    def all_blocks(self, page=1, limit=20, sort_dir='asc'):
         """
         :param int      page:            pagination page, starting at 1
         :param int      limit:           the amount of transactions per page, can be between 1 and 200
@@ -84,7 +84,7 @@ class APIClient(object):
         :rtype: dict
         """
 
-        response = self.client.get("/block/all", params={'page': page, 'limit': limit, 'sort_dir': sort_dir})
+        response = self.client.get("/all-blocks", params={'page': page, 'limit': limit, 'sort_dir': sort_dir})
 
         return response.json()
 
