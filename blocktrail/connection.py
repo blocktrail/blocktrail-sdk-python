@@ -12,7 +12,7 @@ from blocktrail.exceptions import *
 EXCEPTION_INVALID_CREDENTIALS = "Your credentials are incorrect."
 EXCEPTION_GENERIC_HTTP_ERROR = "An HTTP Error has occurred!"
 EXCEPTION_GENERIC_SERVER_ERROR = "An Server Error has occurred!"
-EXCEPTION_EMPTY_RESPONSE = "The HTTP Resone was empty."
+EXCEPTION_EMPTY_RESPONSE = "The HTTP Response was empty."
 EXCEPTION_UNKNOWN_ENDPOINT_SPECIFIC_ERROR = "The endpoint returned an unknown error."
 EXCEPTION_MISSING_ENDPOINT = "The endpoint you've tried to access does not exist. Check your URL."
 EXCEPTION_OBJECT_NOT_FOUND = "The object you've tried to access does not exist."
