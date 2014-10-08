@@ -1,5 +1,6 @@
 from blocktrail import connection
 
+
 class APIClient(object):
     def __init__(self, api_key, api_secret, network='BTC', testnet=False, api_version='v1', api_endpoint=None, debug=False):
         """
