@@ -21,7 +21,7 @@ class APIClient(object):
 
     def address(self, address):
         """
-        :param str     address:        the address hash
+        :param str      address:        the address hash
         :rtype: dict
         """
         response = self.client.get("/address/%s" % (address, ))
@@ -29,7 +29,39 @@ class APIClient(object):
         return response.json()
 
     def address_transactions(self, address, page=1, limit=20, sort_dir='asc'):
+        """
+        :param str      address:        the address hash
+        :param int      page:           pagination page, starting at 1
+        :param int      limit:          the amount of transactions per page, can be between 1 and 200
+        :param str      address:        sorted ASC or DESC (on time)
+        :rtype: dict
+        """
+
         response = self.client.get("/address/%s/transactions" % (address, ), params={'page': page, 'limit': limit, 'sort_dir': sort_dir})
+
+        return response.json()
+
+    def address_unconfirmed_transactions(self, address, page=1, limit=20, sort_dir='asc'):
+        """
+        :param str      address:        the address hash
+        :param int      page:           pagination page, starting at 1
+        :param int      limit:          the amount of transactions per page, can be between 1 and 200
+        :param str      sort_dir:       sorted ASC or DESC (on time)
+        :rtype: dict
+        """
+        response = self.client.get("/address/%s/unconfirmed-transactions" % (address, ), params={'page': page, 'limit': limit, 'sort_dir': sort_dir})
+
+        return response.json()
+
+    def address_unspent_outputs(self, address, page=1, limit=20, sort_dir='asc'):
+        """
+        :param str      address:        the address hash
+        :param int      page:           pagination page, starting at 1
+        :param int      limit:          the amount of transactions per page, can be between 1 and 200
+        :param str      sort_dir:       sorted ASC or DESC (on time)
+        :rtype: dict
+        """
+        response = self.client.get("/address/%s/unspent-outputs" % (address, ), params={'page': page, 'limit': limit, 'sort_dir': sort_dir})
 
         return response.json()
 
@@ -40,5 +72,55 @@ class APIClient(object):
         :rtype: dict
         """
         response = self.client.post("/address/%s/verify" % (address, ), data={'signature': signature}, auth=True)
+
+        return response.json()
+
+    def blocks_all(self, page=1, limit=20, sort_dir='asc'):
+        """
+        :param int      page:            pagination page, starting at 1
+        :param int      limit:           the amount of transactions per page, can be between 1 and 200
+        :param str      sort_dir:        sorted ASC or DESC (on time)
+        :rtype: dict
+        """
+
+        response = self.client.get("/block/all", params={'page': page, 'limit': limit, 'sort_dir': sort_dir})
+
+        return response.json()
+
+    def block_latest(self):
+        response = self.client.get("/block/latest")
+
+        return response.json()
+
+    def block(self, block):
+        """
+        :param str|int  block:           the block hash or block height
+        :rtype: dict
+        """
+
+        response = self.client.get("/block/%s" % (block, ))
+
+        return response.json()
+
+    def block_transactions(self, block, page=1, limit=20, sort_dir='asc'):
+        """
+        :param str|int  block:           the block hash or block height
+        :param int      page:            pagination page, starting at 1
+        :param int      limit:           the amount of transactions per page, can be between 1 and 200
+        :param str      sort_dir:        sorted ASC or DESC (on time)
+        :rtype: dict
+        """
+
+        response = self.client.get("/block/%s/transactions" % (block, ), params={'page': page, 'limit': limit, 'sort_dir': sort_dir})
+
+        return response.json()
+
+    def transaction(self, txhash):
+        """
+        :param str      txhash:          the transaction hash
+        :rtype: dict
+        """
+
+        response = self.client.get("/transaction/%s" % (txhash, ))
 
         return response.json()
