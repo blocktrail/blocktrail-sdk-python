@@ -19,13 +19,15 @@ EXCEPTION_OBJECT_NOT_FOUND = "The object you've tried to access does not exist."
 
 
 class RestClient(object):
-    def __init__(self, api_endpoint, api_key, api_secret):
+    def __init__(self, api_endpoint, api_key, api_secret, debug=False):
         """
         :param str      api_endpoint:   the base url to use for all API requests
         :param str      api_key:        the API_KEY to use for authentication
         :param str      api_secret:     the API_SECRET to use for authentication
+        :param bool     debug:          print debug information when requests fail
         """
         self.api_endpoint = api_endpoint
+        self.debug = debug
 
         # create a default User-Agent
         self.default_headers = {
@@ -51,22 +53,18 @@ class RestClient(object):
         if auth is True:
             auth = self.auth
 
-
-        headers = self.default_headers.copy().update({
+        headers = dict_merge(self.default_headers, {
             'Date': RestClient.httpdate(datetime.datetime.utcnow()),
             'Content-MD5': RestClient.content_md5("")
         })
 
-        _params = self.default_params.copy()
-        if params is not None:
-            _params.update(params)
-        params = _params
+        params = dict_merge(self.default_params, params)
 
         response = requests.get(self.api_endpoint + endpoint_url, params=params, headers=headers, auth=auth)
 
-        return RestClient.handle_response(response)
+        return self.handle_response(response)
 
-    def post(self, endpoint_url, data, auth=None):
+    def post(self, endpoint_url, data, params=None, auth=None):
         """
         :param str      endpoint_url:   the API endpoint to request
         :param dict     data:           the POST body
@@ -79,19 +77,18 @@ class RestClient(object):
         # do the post body encoding here since we need it to get the MD5
         data = RequestEncodingMixin._encode_params(data)
 
-        headers = self.default_headers.copy().update({
+        headers = dict_merge(self.default_headers, {
             'Date': RestClient.httpdate(datetime.datetime.utcnow()),
-            'Content-MD5': RestClient.content_md5(data)
+            'Content-MD5': RestClient.content_md5(data),
+            'Content-Type': 'application/x-www-form-urlencoded'
         })
 
-        params = self.default_params.copy()
-
+        params = dict_merge(self.default_params, params)
         response = requests.post(self.api_endpoint + endpoint_url, data=data, params=params, headers=headers, auth=auth)
 
-        return RestClient.handle_response(response)
+        return self.handle_response(response)
 
-    @classmethod
-    def handle_response(cls, response):
+    def handle_response(self, response):
         """
         helper function to handle the response and raise Exceptions
 
@@ -103,7 +100,10 @@ class RestClient(object):
                 raise EmptyResponse(EXCEPTION_EMPTY_RESPONSE)
 
             return response
-        elif response.status_code == 400 or response.status_code == 403:
+        elif self.debug:
+            print response.url, response.status_code, response.content
+
+        if response.status_code == 400 or response.status_code == 403:
             data = response.json()
 
             if data and data['msg'] and data['code']:
@@ -137,3 +137,13 @@ class RestClient(object):
         month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
                  "Oct", "Nov", "Dec"][dt.month - 1]
         return "%s, %02d %s %04d %02d:%02d:%02d GMT" % (weekday, dt.day, month, dt.year, dt.hour, dt.minute, dt.second)
+
+
+def dict_merge(dict1, dict2):
+    dict1 = dict1 if dict1 is not None else {}
+    dict2 = dict2 if dict2 is not None else {}
+
+    result = dict1.copy()
+    result.update(dict2)
+
+    return result
