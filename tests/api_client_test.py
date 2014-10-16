@@ -4,9 +4,17 @@ import blocktrail
 
 
 class ApiClientTestCase(unittest.TestCase):
-    def setup_api_client(self, api_key="MYKEY", api_secret="MYSECRET", debug=True):
+    def setup_api_client(self, api_key="MY_APIKEY", api_secret="MY_APISECRET", debug=True):
         return blocktrail.APIClient(api_key, api_secret, debug=debug)
 
+
+    def test_coin_value(self):
+        assert 1 == blocktrail.to_satoshi(0.00000001)
+        assert 1.0, blocktrail.to_btc(100000000)
+
+        assert 123456789, blocktrail.to_satoshi(1.23456789)
+        assert 1.23456789, blocktrail.to_btc(123456789)
+    
     def test_auth(self):
         client = self.setup_api_client(api_secret="FAILSECRET", debug=False)
 

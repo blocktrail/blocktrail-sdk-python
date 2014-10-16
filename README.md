@@ -8,6 +8,23 @@ at https://www.blocktrail.com/api/docs
 [![Build Status](https://travis-ci.org/blocktrail/blocktrail-sdk-python.png)](https://travis-ci.org/blocktrail/blocktrail-sdk-python)
 [![tip for next commit](https://tip4commit.com/projects/1011.svg)](https://tip4commit.com/github/blocktrail/blocktrail-sdk-python)
 
+IMPORTANT! FLOATS ARE EVIL!!
+----------------------------
+As is best practice with financial data, The API returns all values as an integer, the Bitcoin value in Satoshi's.
+
+The BlockTrail SDK has some easy to use functions to do this for you, we recommend using these
+and we also **strongly** recommend doing all Bitcoin calculation and storing of data in integers
+and only convert to/from Bitcoin float values for displaying it to the user.
+
+```php
+import blocktrail
+
+print "123456789 Satoshi to BTC: ", blocktrail.to_btc(123456789)
+print "1.23456789 BTC to Satoshi: ", blocktrail.to_satoshi(1.23456789)
+```
+
+A bit more about this can be found [in our documentation](https://www.blocktrail.com/api/docs/python#api_coin_format).
+
 Installation
 ------------
 You can install the package through Pypi (http://pypi.python.org/pypi?:action=display&name=blocktrail-sdk-python).
@@ -30,15 +47,11 @@ The following dependancies are required:
 
 Usage
 -----
-...
-
-Additional Info
----------------
-For usage examples on each API endpoint, head over to our official documentation pages.
+Please visit our official documentation at https://www.blocktrail.com/api/docs/python for the usage.
 
 Support and Feedback
 --------------------
-Be sure to visit the BlockTrail API official [documentation website](https://www.blocktrail.com/api/docs)
+Be sure to visit the BlockTrail API official [documentation website](https://www.blocktrail.com/api/docs/python)
 for additional information about our API.
 
 If you find a bug, please submit the issue in Github directly.
