@@ -14,7 +14,6 @@ def to_btc(satoshi):
     return COIN_FORMAT % (satoshi / float(COIN))
 
 
-
 from blocktrail import connection
 from blocktrail import exceptions
 from blocktrail.client import APIClient
