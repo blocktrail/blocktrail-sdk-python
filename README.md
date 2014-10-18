@@ -4,7 +4,7 @@ This is the BlockTrail Python SDK. This SDK contains methods for easily interact
 Below are examples to get you started. For additional examples, please see our official documentation
 at https://www.blocktrail.com/api/docs
 
-[![Latest Stable Version](https://badge.fury.io/py/blocktrail-sdk-python.svg)](http://badge.fury.io/py/blocktrail-sdk-python)
+[![Latest Stable Version](https://badge.fury.io/py/blocktrail-sdk-python.svg)](https://pypi.python.org/pypi/blocktrail-sdk-python)
 [![Build Status](https://travis-ci.org/blocktrail/blocktrail-sdk-python.png)](https://travis-ci.org/blocktrail/blocktrail-sdk-python)
 [![tip for next commit](https://tip4commit.com/projects/1011.svg)](https://tip4commit.com/github/blocktrail/blocktrail-sdk-python)
 
@@ -70,7 +70,7 @@ Note: Core developers, who receive a tip, will donate those tips back to the pro
 
 Unit Tests
 ----------
-Unit Tests are created with PyUnit and can be ran with `python run_tests.py`
+Unit Tests are created with PyUnit and can be ran with `python setup.py test`
 
 License
 -------
