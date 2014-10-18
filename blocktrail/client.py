@@ -16,7 +16,7 @@ class APIClient(object):
 
         if api_endpoint is None:
             network = ("t" if testnet else "") + network.upper()
-            api_endpoint = "http://api.blocktrail.localhost/%s/%s" % (api_version, network)
+            api_endpoint = "https://api.blocktrail.com/%s/%s" % (api_version, network)
 
         self.client = connection.RestClient(api_endpoint=api_endpoint, api_key=api_key, api_secret=api_secret, debug=debug)
 
