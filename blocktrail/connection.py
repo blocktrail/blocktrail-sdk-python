@@ -1,6 +1,7 @@
 import hashlib
 import datetime
 import requests
+import json
 
 from httpsig.requests_auth import HTTPSignatureAuth
 from requests.models import RequestEncodingMixin
@@ -75,12 +76,12 @@ class RestClient(object):
             auth = self.auth
 
         # do the post body encoding here since we need it to get the MD5
-        data = RequestEncodingMixin._encode_params(data)
+        data = json.dumps(data)
 
         headers = dict_merge(self.default_headers, {
             'Date': RestClient.httpdate(datetime.datetime.utcnow()),
             'Content-MD5': RestClient.content_md5(data),
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/json'
         })
 
         params = dict_merge(self.default_params, params)
