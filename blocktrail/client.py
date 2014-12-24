@@ -148,3 +148,141 @@ class APIClient(object):
         response = self.client.get("/transaction/%s" % (txhash, ))
 
         return response.json()
+
+    def all_webhooks(self, page=1, limit=20):
+        """
+        get all webhooks (paginated)
+
+        :param int      page:            pagination page, starting at 1
+        :param int      limit:           the amount of webhooks per page, can be between 1 and 200
+        :rtype: dict
+        """
+
+        response = self.client.get("/webhooks", params={'page': page, 'limit': limit})
+
+        return response.json()
+
+    def webhook(self, identifier):
+        """
+        get a webhook by it's identifier
+
+        :param str      identifier:      the webhook identifier
+        :rtype: dict
+        """
+
+        response = self.client.get("/webhook/%s" % (identifier, ))
+
+        return response.json()
+
+    def setup_webhook(self, url, identifier=None):
+        """
+        create a new webhook
+
+        :param str      url:            the url to receive the webhook events
+        :param str      identifier:     a unique identifier to associate with this webhook (optional)
+        :rtype: dict
+        """
+        response = self.client.post("/webhook", data={'url': url, 'identifier': identifier}, auth=True)
+
+        return response.json()
+
+    def update_webhook(self, identifier, new_url=None, new_identifier=None):
+        """
+        update an existing webhook
+
+        :param str      identifier:     the webhook identifier
+        :param str      new_url:        the new webhook url
+        :param str      new_identifier: the new webhook identifier
+        :rtype: dict
+        """
+        response = self.client.put("/webhook/%s" % (identifier, ),
+                                   data={'url': new_url, 'identifier': new_identifier},
+                                   auth=True)
+
+        return response.json()
+
+    def delete_webhook(self, identifier):
+        """
+        deletes an existing webhook and any event subscriptions associated with it
+
+        :param str      identifier:     the webhook identifier
+        :rtype: dict
+        """
+        response = self.client.delete("/webhook/%s" % (identifier, ), auth=True)
+
+        return response.json()
+
+    def webhook_events(self, identifier, page=1, limit=20):
+        """
+        get a paginated list of all the events a webhook is subscribed to
+
+        :param str      identifier:     the webhook identifier
+        :param int      page:           pagination page, starting at 1
+        :param int      limit:          the amount of webhooks per page, can be between 1 and 200
+        :rtype: dict
+        """
+
+        response = self.client.get("/webhook/%s/events" % (identifier, ), params={'page': page, 'limit': limit})
+
+        return response.json()
+
+    def subscribe_address_transactions(self, identifier, address, confirmations=6):
+        """
+        subscribes a webhook to transaction events on a particular address
+
+        :param str      identifier:     the webhook identifier
+        :param str      address:        the address hash
+        :param str      confirmations:  the amount of confirmations to send
+        :rtype: dict
+        """
+        response = self.client.post(
+            "/webhook/%s/events" % (identifier, ),
+            data={
+                'event_type': 'address-transactions',
+                'address': address,
+                'confirmations': confirmations
+            },
+            auth=True
+        )
+
+        return response.json()
+
+    def subscribe_new_blocks(self, identifier):
+        """
+        subscribes a webhook to new blocks
+
+        :param str      identifier:     the webhook identifier
+        :rtype: dict
+        """
+        response = self.client.post(
+            "/webhook/%s/events" % (identifier, ),
+            data={
+                'event_type': 'block'
+            },
+            auth=True
+        )
+
+        return response.json()
+
+    def unsubscribe_address_transactions(self, identifier, address):
+        """
+        unsubscribes a webhook to transaction events from a particular address
+
+        :param str      identifier:     the webhook identifier
+        :param str      address:        the address hash
+        :rtype: dict
+        """
+        response = self.client.delete("/webhook/%s/address-transactions/%s" % (identifier, address), auth=True)
+
+        return response.json()
+
+    def unsubscribe_new_blocks(self, identifier):
+        """
+        unsubscribes a webhook from new blocks
+
+        :param str      identifier:     the webhook identifier
+        :rtype: dict
+        """
+        response = self.client.delete("/webhook/%s/block" % (identifier, ), auth=True)
+
+        return response.json()
