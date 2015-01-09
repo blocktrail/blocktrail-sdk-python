@@ -2,7 +2,7 @@ BlockTrail Python SDK
 =====================
 This is the BlockTrail Python SDK. This SDK contains methods for easily interacting with the BlockTrail API.
 Below are examples to get you started. For additional examples, please see our official documentation
-at https://www.blocktrail.com/api/docs
+at https://www.blocktrail.com/api/docs/lang/python
 
 [![Latest Stable Version](https://badge.fury.io/py/blocktrail-sdk.svg)](https://pypi.python.org/pypi/blocktrail-sdk)
 [![Build Status](https://travis-ci.org/blocktrail/blocktrail-sdk-python.png?branch=master)](https://travis-ci.org/blocktrail/blocktrail-sdk-python)
@@ -22,7 +22,7 @@ print "123456789 Satoshi to BTC: ", blocktrail.to_btc(123456789)
 print "1.23456789 BTC to Satoshi: ", blocktrail.to_satoshi(1.23456789)
 ```
 
-A bit more about this can be found [in our documentation](https://www.blocktrail.com/api/docs/python#api_coin_format).
+A bit more about this can be found [in our documentation](https://www.blocktrail.com/api/docs/lang/python#api_coin_format).
 
 Installation
 ------------
@@ -46,11 +46,11 @@ The following dependancies are required:
 
 Usage
 -----
-Please visit our official documentation at https://www.blocktrail.com/api/docs/python for the usage.
+Please visit our official documentation at https://www.blocktrail.com/api/docs/lang/python for the usage.
 
 Support and Feedback
 --------------------
-Be sure to visit the BlockTrail API official [documentation website](https://www.blocktrail.com/api/docs/python)
+Be sure to visit the BlockTrail API official [documentation website](https://www.blocktrail.com/api/docs/lang/python)
 for additional information about our API.
 
 If you find a bug, please submit the issue in Github directly.
