@@ -247,6 +247,21 @@ class APIClient(object):
 
         return response.json()
 
+    def batch_subscribe_address_transactions(self, identifier, batch_data):
+        """
+        batch subscribes a webhook to multiple transaction events
+
+        :param str      identifier:     the webhook identifier
+        :param list     batch_data:
+        :rtype: dict
+        """
+        for record in batch_data:
+            record.event_type = 'address-transactions'
+
+        response = self.client.post("/webhook/%s/events/batch" % (identifier, ), data=batch_data, auth=True)
+
+        return response.json()
+
     def subscribe_new_blocks(self, identifier):
         """
         subscribes a webhook to new blocks

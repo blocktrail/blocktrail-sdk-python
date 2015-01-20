@@ -186,7 +186,31 @@ class ApiClientTestCase(unittest.TestCase):
         # unsubscribe webhook event (block)
         assert client.unsubscribe_new_blocks(webhookID2)
 
-        # cleanup
+
+        # batch create webhook events (address-transactions)
+        batch_data = [
+            {
+                'event_type': 'address-transactions',
+                'address': '18FA8Tn54Hu8fjn7kkfAygPoGEJLHMbHzo',
+                'confirmations': 1
+            },
+            {
+                'address': '1LUCKYwD6V9JHVXAFEEjyQSD4Dj5GLXmte',
+                'confirmations': 1
+            },
+            {
+                'address': '1qMBuZnrmGoAc2MWyTnSgoLuWReDHNYyF'
+            }
+        ]
+        result = client.batch_subscribe_address_transactions(webhookID2, batch_data)
+        assert result
+        result = client.webhook_events(webhookID2)
+        assert result['total'] == 3
+        assert len(result['data']) == 3
+        assert result['data'][2]['address'] == batch_data[2]['address']
+
+
+        # cleanup - @todo needs to be put in a cleanup class and run regardless of the test progress
         assert client.delete_webhook(webhookID2)
 
 
