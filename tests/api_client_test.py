@@ -109,6 +109,86 @@ class ApiClientTestCase(unittest.TestCase):
         assert tx['enough_fee'] is True
         assert tx['high_priority'] is False
 
+    def test_webhooks(self):
+        client = self.setup_api_client()
+
+        # cleanup old webhooks
+        webhooks = client.all_webhooks(1, 500)
+        for webhook in webhooks['data']:
+            assert client.delete_webhook(webhook['identifier']) is True
+
+        # create a webhook with a custom identifier
+        result = client.setup_webhook("https://www.blocktrail.com/webhook-test", "my-webhook-id")
+        assert result and 'url' in result and 'identifier' in result
+        assert result['url'] == "https://www.blocktrail.com/webhook-test"
+        assert result['identifier'] == "my-webhook-id"
+
+        webhookID1 = result['identifier']
+
+        # create a webhook without a custom identifier
+        result = client.setup_webhook("https://www.blocktrail.com/webhook-test")
+        assert result and 'url' in result and 'identifier' in result
+        assert result['url'] == "https://www.blocktrail.com/webhook-test"
+        assert len(result['identifier']) > 0
+
+        webhookID2 = result['identifier']
+
+        # get all webhooks
+        webhooks = client.all_webhooks()
+        assert webhooks and 'data' in webhooks and 'total' in webhooks
+        assert webhooks['total'] == 2
+        assert len(webhooks['data']) == 2
+
+        assert webhookID1 == webhooks['data'][0]['identifier']
+        assert webhookID2 == webhooks['data'][1]['identifier']
+
+
+        # get a single webhook
+        result = client.webhook("my-webhook-id")
+        assert result and 'url' in result and 'identifier' in result
+        assert result['url'] == "https://www.blocktrail.com/webhook-test"
+        assert result['identifier'] == "my-webhook-id"
+
+        # delete a webhook
+        assert client.delete_webhook(webhookID1)
+
+        # update a webhook
+        result = client.update_webhook(webhookID2, "https://www.blocktrail.com/new-webhook-url", "a-new-identity")
+        assert result and 'url' in result and 'identifier' in result
+        assert result['url'] == "https://www.blocktrail.com/new-webhook-url"
+        assert result['identifier'] == "a-new-identity"
+        webhookID2 = result['identifier']
+
+        # add webhook event subscription (address-transactions)
+        result = client.subscribe_address_transactions(webhookID2, "1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp", 2)
+        assert result
+        assert result['event_type'] == 'address-transactions'
+        assert result['address'] == '1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp'
+        assert result['confirmations'] == 2
+
+        # add webhook event subscription (block)
+        result = client.subscribe_new_blocks(webhookID2)
+        assert result
+        assert result['event_type'] == 'block'
+
+        # get webhook's event subscriptions
+        result = client.webhook_events(webhookID2)
+        assert result and 'data' in result and 'total' in result
+        assert result['total'] == 2
+        assert len(result['data']) == 2
+
+        assert result['data'][0]['event_type'] == 'address-transactions'
+        assert result['data'][1]['event_type'] == 'block'
+
+        # unsubscribe webhook event (address-transaction)
+        assert client.unsubscribe_address_transactions(webhookID2, "1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp")
+
+        # unsubscribe webhook event (block)
+        assert client.unsubscribe_new_blocks(webhookID2)
+
+        # cleanup
+        assert client.delete_webhook(webhookID2)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,7 +1,9 @@
 import hashlib
 import datetime
+import urlparse
 import requests
 import json
+import urllib
 
 from httpsig.requests_auth import HTTPSignatureAuth
 from requests.models import RequestEncodingMixin
@@ -86,6 +88,54 @@ class RestClient(object):
 
         params = dict_merge(self.default_params, params)
         response = requests.post(self.api_endpoint + endpoint_url, data=data, params=params, headers=headers, auth=auth)
+
+        return self.handle_response(response)
+
+    def put(self, endpoint_url, data, params=None, auth=None):
+        """
+        :param str      endpoint_url:   the API endpoint to request
+        :param dict     data:           the POST body
+        :param bool     auth:           do HMAC auth
+        :rtype: requests.Response
+        """
+        if auth is True:
+            auth = self.auth
+
+        # do the post body encoding here since we need it to get the MD5
+        data = json.dumps(data)
+
+        headers = dict_merge(self.default_headers, {
+            'Date': RestClient.httpdate(datetime.datetime.utcnow()),
+            'Content-MD5': RestClient.content_md5(data),
+            'Content-Type': 'application/json'
+        })
+
+        params = dict_merge(self.default_params, params)
+        response = requests.put(self.api_endpoint + endpoint_url, data=data, params=params, headers=headers, auth=auth)
+
+        return self.handle_response(response)
+
+    def delete(self, endpoint_url, data=None, params=None, auth=None):
+        """
+        :param str      endpoint_url:   the API endpoint to request
+        :param dict     data:           the POST body
+        :param bool     auth:           do HMAC auth
+        :rtype: requests.Response
+        """
+        if auth is True:
+            auth = self.auth
+
+        data = json.dumps(data)
+
+        params = dict_merge(self.default_params, params)
+
+        headers = dict_merge(self.default_headers, {
+            'Date': RestClient.httpdate(datetime.datetime.utcnow()),
+            'Content-MD5': RestClient.content_md5(urlparse.urlparse(self.api_endpoint + endpoint_url).path + "?" + urllib.urlencode(params)),
+            'Content-Type': 'application/json'
+        })
+
+        response = requests.delete(self.api_endpoint + endpoint_url, data=data, params=params, headers=headers, auth=auth)
 
         return self.handle_response(response)
 
