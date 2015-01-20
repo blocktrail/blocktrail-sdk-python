@@ -7,7 +7,6 @@ import blocktrail
 class ApiClientTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(self):
-        print "set up class"
         self.cleanup_data = {};
 
     def tearDown(self):
