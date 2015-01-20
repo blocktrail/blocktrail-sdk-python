@@ -256,7 +256,7 @@ class APIClient(object):
         :rtype: dict
         """
         for record in batch_data:
-            record.event_type = 'address-transactions'
+            record['event_type'] = 'address-transactions'
 
         response = self.client.post("/webhook/%s/events/batch" % (identifier, ), data=batch_data, auth=True)
 
