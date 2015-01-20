@@ -4,9 +4,27 @@ import blocktrail
 
 
 class ApiClientTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(self):
+        print "set up class"
+        self.cleanup_data = [];
+
+    def tearDown(self):
+        #cleanup any records that were created after each test
+        client = self.setup_api_client(api_secret="FAILSECRET", debug=False)
+
+        #webhooks
+        if 'webhooks' in self.cleanup_data:
+           count = 0
+           for webhook in self.cleanup_data['webhooks']:
+               try:
+                   count += int(client.delete_webhook(webhook))
+               except Exception:
+                pass
+           print "\ncleanup - %d webhooks deleted\n"
+
     def setup_api_client(self, api_key="MY_APIKEY", api_secret="MY_APISECRET", debug=True):
         return blocktrail.APIClient(api_key, api_secret, debug=debug)
-
 
     def test_coin_value(self):
         assert 1 == blocktrail.to_satoshi(0.00000001)
