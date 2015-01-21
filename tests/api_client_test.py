@@ -5,9 +5,8 @@ import blocktrail
 
 
 class ApiClientTestCase(unittest.TestCase):
-    @classmethod
-    def setUpClass(self):
-        self.cleanup_data = {};
+    def setUp(self):
+        self.cleanup_data = {}
 
     def tearDown(self):
         #cleanup any records that were created after each test
@@ -21,7 +20,6 @@ class ApiClientTestCase(unittest.TestCase):
                     count += int(client.delete_webhook(webhook))
                 except Exception:
                     pass
-            print "\ncleanup - %d webhooks deleted\n" % (count)
 
     def setup_api_client(self, api_key="MY_APIKEY", api_secret="MY_APISECRET", debug=True):
         return blocktrail.APIClient(api_key, api_secret, debug=debug)
