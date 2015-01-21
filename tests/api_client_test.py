@@ -1,12 +1,28 @@
 import unittest
-
+import os
+import binascii
 import blocktrail
 
 
 class ApiClientTestCase(unittest.TestCase):
+    def setUp(self):
+        self.cleanup_data = {}
+
+    def tearDown(self):
+        #cleanup any records that were created after each test
+        client = self.setup_api_client(debug=False)
+
+        #webhooks
+        if 'webhooks' in self.cleanup_data:
+            count = 0
+            for webhook in self.cleanup_data['webhooks']:
+                try:
+                    count += int(client.delete_webhook(webhook))
+                except Exception:
+                    pass
+
     def setup_api_client(self, api_key="MY_APIKEY", api_secret="MY_APISECRET", debug=True):
         return blocktrail.APIClient(api_key, api_secret, debug=debug)
-
 
     def test_coin_value(self):
         assert 1 == blocktrail.to_satoshi(0.00000001)
@@ -112,18 +128,19 @@ class ApiClientTestCase(unittest.TestCase):
     def test_webhooks(self):
         client = self.setup_api_client()
 
-        # cleanup old webhooks
-        webhooks = client.all_webhooks(1, 500)
-        for webhook in webhooks['data']:
-            assert client.delete_webhook(webhook['identifier']) is True
+        # keep track of all webhooks created for cleanup
+        self.cleanup_data['webhooks'] = []
 
-        # create a webhook with a custom identifier
-        result = client.setup_webhook("https://www.blocktrail.com/webhook-test", "my-webhook-id")
+        # create a webhook with a custom identifier (randomly generated)
+        bytes = os.urandom(10);
+        identifier_1 = binascii.hexlify(bytes);
+        result = client.setup_webhook("https://www.blocktrail.com/webhook-test", identifier_1)
         assert result and 'url' in result and 'identifier' in result
         assert result['url'] == "https://www.blocktrail.com/webhook-test"
-        assert result['identifier'] == "my-webhook-id"
+        assert result['identifier'] == identifier_1
 
         webhookID1 = result['identifier']
+        self.cleanup_data['webhooks'].append(webhookID1)
 
         # create a webhook without a custom identifier
         result = client.setup_webhook("https://www.blocktrail.com/webhook-test")
@@ -132,32 +149,36 @@ class ApiClientTestCase(unittest.TestCase):
         assert len(result['identifier']) > 0
 
         webhookID2 = result['identifier']
+        self.cleanup_data['webhooks'].append(webhookID2)
 
         # get all webhooks
-        webhooks = client.all_webhooks()
-        assert webhooks and 'data' in webhooks and 'total' in webhooks
-        assert webhooks['total'] == 2
-        assert len(webhooks['data']) == 2
+        result = client.all_webhooks()
+        assert result and 'data' in result and 'total' in result
+        assert result['total'] >= 2
+        assert len(result['data']) >= 2
 
-        assert webhookID1 == webhooks['data'][0]['identifier']
-        assert webhookID2 == webhooks['data'][1]['identifier']
+        assert 'url' in result['data'][0]
+        assert 'url' in result['data'][1]
 
 
         # get a single webhook
-        result = client.webhook("my-webhook-id")
+        result = client.webhook(webhookID1)
         assert result and 'url' in result and 'identifier' in result
         assert result['url'] == "https://www.blocktrail.com/webhook-test"
-        assert result['identifier'] == "my-webhook-id"
+        assert result['identifier'] == webhookID1
 
         # delete a webhook
         assert client.delete_webhook(webhookID1)
 
         # update a webhook
-        result = client.update_webhook(webhookID2, "https://www.blocktrail.com/new-webhook-url", "a-new-identity")
+        bytes = os.urandom(10);
+        new_identifier = binascii.hexlify(bytes);
+        result = client.update_webhook(webhookID2, "https://www.blocktrail.com/new-webhook-url", new_identifier)
         assert result and 'url' in result and 'identifier' in result
         assert result['url'] == "https://www.blocktrail.com/new-webhook-url"
-        assert result['identifier'] == "a-new-identity"
+        assert result['identifier'] == new_identifier
         webhookID2 = result['identifier']
+        self.cleanup_data['webhooks'].append(webhookID2)
 
         # add webhook event subscription (address-transactions)
         result = client.subscribe_address_transactions(webhookID2, "1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp", 2)
@@ -186,8 +207,32 @@ class ApiClientTestCase(unittest.TestCase):
         # unsubscribe webhook event (block)
         assert client.unsubscribe_new_blocks(webhookID2)
 
-        # cleanup
-        assert client.delete_webhook(webhookID2)
+
+        # batch create webhook events (address-transactions)
+        batch_data = [
+            {
+                'event_type': 'address-transactions',
+                'address': '18FA8Tn54Hu8fjn7kkfAygPoGEJLHMbHzo',
+                'confirmations': 1
+            },
+            {
+                'address': '1LUCKYwD6V9JHVXAFEEjyQSD4Dj5GLXmte',
+                'confirmations': 1
+            },
+            {
+                'address': '1qMBuZnrmGoAc2MWyTnSgoLuWReDHNYyF'
+            }
+        ]
+        result = client.batch_subscribe_address_transactions(webhookID2, batch_data)
+        assert result
+        result = client.webhook_events(webhookID2)
+        assert result['total'] == 3
+        assert len(result['data']) == 3
+        assert result['data'][2]['address'] == batch_data[2]['address']
+
+
+        # cleanup - @todo needs to be put in a cleanup class and run regardless of the test progress
+        #assert client.delete_webhook(webhookID2)
 
 
 if __name__ == "__main__":
