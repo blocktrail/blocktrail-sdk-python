@@ -132,8 +132,8 @@ class ApiClientTestCase(unittest.TestCase):
         self.cleanup_data['webhooks'] = []
 
         # create a webhook with a custom identifier (randomly generated)
-        bytes = os.urandom(10);
-        identifier_1 = binascii.hexlify(bytes);
+        bytes = os.urandom(10)
+        identifier_1 = binascii.hexlify(bytes)
         result = client.setup_webhook("https://www.blocktrail.com/webhook-test", identifier_1)
         assert result and 'url' in result and 'identifier' in result
         assert result['url'] == "https://www.blocktrail.com/webhook-test"
@@ -171,8 +171,8 @@ class ApiClientTestCase(unittest.TestCase):
         assert client.delete_webhook(webhookID1)
 
         # update a webhook
-        bytes = os.urandom(10);
-        new_identifier = binascii.hexlify(bytes);
+        bytes = os.urandom(10)
+        new_identifier = binascii.hexlify(bytes)
         result = client.update_webhook(webhookID2, "https://www.blocktrail.com/new-webhook-url", new_identifier)
         assert result and 'url' in result and 'identifier' in result
         assert result['url'] == "https://www.blocktrail.com/new-webhook-url"
