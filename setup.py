@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='blocktrail-sdk',
-    version='1.0.2',
+    version='1.0.3',
     description="BlockTrail's Developer Friendly API binding for Python",
     long_description='This package allows interacting with the BlockTrail API',
     maintainer='Ruben de Vries',
