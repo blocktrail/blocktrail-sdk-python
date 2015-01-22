@@ -301,3 +301,14 @@ class APIClient(object):
         response = self.client.delete("/webhook/%s/block" % (identifier, ), auth=True)
 
         return response.json()
+
+    def price(self):
+        """
+        get the current price index
+
+        :rtype: dict
+        """
+
+        response = self.client.get("/price")
+
+        return response.json()

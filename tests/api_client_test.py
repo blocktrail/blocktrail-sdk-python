@@ -234,6 +234,12 @@ class ApiClientTestCase(unittest.TestCase):
         # cleanup - @todo needs to be put in a cleanup class and run regardless of the test progress
         #assert client.delete_webhook(webhookID2)
 
+    def test_price_index(self):
+        client = self.setup_api_client()
+
+        result = client.price()
+        assert result and 'USD' in result
+
 
 if __name__ == "__main__":
     unittest.main()
