@@ -1,9 +1,12 @@
-import hashlib
+from __future__ import print_function
+from future.standard_library import install_aliases
+install_aliases()
+
 import datetime
-import urlparse
+from urllib.parse import urlparse, urlencode
 import requests
 import json
-import urllib
+import hashlib
 
 from httpsig.requests_auth import HTTPSignatureAuth
 from requests.models import RequestEncodingMixin
@@ -131,7 +134,7 @@ class RestClient(object):
 
         headers = dict_merge(self.default_headers, {
             'Date': RestClient.httpdate(datetime.datetime.utcnow()),
-            'Content-MD5': RestClient.content_md5(urlparse.urlparse(self.api_endpoint + endpoint_url).path + "?" + urllib.urlencode(params)),
+            'Content-MD5': RestClient.content_md5(urlparse(self.api_endpoint + endpoint_url).path + "?" + urlencode(params)),
             'Content-Type': 'application/json'
         })
 
@@ -152,7 +155,7 @@ class RestClient(object):
 
             return response
         elif self.debug:
-            print response.url, response.status_code, response.content
+            print(response.url, response.status_code, response.content)
 
         if response.status_code == 400 or response.status_code == 403:
             data = response.json()
@@ -175,7 +178,7 @@ class RestClient(object):
 
     @classmethod
     def content_md5(cls, content=""):
-        return hashlib.md5(content).hexdigest()
+        return hashlib.md5(content.encode("utf-8")).hexdigest()
 
     @classmethod
     def httpdate(cls, dt):

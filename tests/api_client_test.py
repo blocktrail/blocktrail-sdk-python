@@ -133,7 +133,7 @@ class ApiClientTestCase(unittest.TestCase):
 
         # create a webhook with a custom identifier (randomly generated)
         bytes = os.urandom(10)
-        identifier_1 = binascii.hexlify(bytes)
+        identifier_1 = binascii.hexlify(bytes).decode("utf-8")
         result = client.setup_webhook("https://www.blocktrail.com/webhook-test", identifier_1)
         assert result and 'url' in result and 'identifier' in result
         assert result['url'] == "https://www.blocktrail.com/webhook-test"
@@ -172,7 +172,7 @@ class ApiClientTestCase(unittest.TestCase):
 
         # update a webhook
         bytes = os.urandom(10)
-        new_identifier = binascii.hexlify(bytes)
+        new_identifier = binascii.hexlify(bytes).decode("utf-8")
         result = client.update_webhook(webhookID2, "https://www.blocktrail.com/new-webhook-url", new_identifier)
         assert result and 'url' in result and 'identifier' in result
         assert result['url'] == "https://www.blocktrail.com/new-webhook-url"

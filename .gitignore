@@ -1,8 +1,9 @@
 *.pyc
 
-/venv/
+/venv*/
 
 /build/
 /dist/
 
+*.egg
 blocktrail*.egg-info

@@ -1,3 +1,5 @@
+from __future__ import division
+
 SDK_VERSION = "1.0.2"
 SDK_USER_AGENT = "blocktrail-sdk-python"
 

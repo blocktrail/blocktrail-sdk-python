@@ -1,5 +1,11 @@
 from setuptools import setup
 
+import sys
+if sys.version_info[0] == 3 and sys.version_info[1] == 2:
+    print("Sorry, Python 3.2 is not supported")
+    print("Only supported version are 2.7, 3.3 and 3.4")
+    sys.exit(1)
+
 setup(
     name='blocktrail-sdk',
     version='1.0.3',
@@ -21,6 +27,8 @@ setup(
         'httpsig >= 1.1.0',
         'pycrypto >= 2.6.1',
         'requests >= 2.4.3',
+        'future >= 0.14.3',
+        'six >= 1.9.0',
     ],
-    test_suite = "tests.get_tests",
+    test_suite="tests.get_tests",
 )

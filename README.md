@@ -37,12 +37,25 @@ $ python setup.py build
 $ python setup.py install
 ```
 
+one of the dependancies, `pycrypto` needs to be compiled and requires the python dev headers so make sure you have those installed.
+```
+$ apt-get install python-dev
+```
+
+Python Versions
+---------------
+Python 2.7 is thoroughly tested.
+Python 3.2 is not supported by the `future` library, so atm we don't support it either.
+Python 3.3 and 3.4 unit tests pass, but it needs some testing...
+
 Dependancies
 ------------
-The following dependancies are required:
- - httpsig
- - pycrypto
- - requests
+The following dependancies are required / installed:
+ - httpsig (for signing our requests to the API)
+ - pycrypto (for crypto stuff)
+ - requests (for doing the requests to the API)
+ - future (for supporting both python 2 and 3)
+ - six (for supporting both python 2 and 3)
 
 Usage
 -----
