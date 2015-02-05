@@ -21,7 +21,12 @@ class ApiClientTestCase(unittest.TestCase):
                 except Exception:
                     pass
 
-    def setup_api_client(self, api_key="MY_APIKEY", api_secret="MY_APISECRET", debug=True):
+    def setup_api_client(self, api_key=None, api_secret=None, debug=True):
+        if api_key is None:
+            api_key = os.environ.get('BLOCKTRAIL_SDK_APIKEY', 'EXAMPLE_BLOCKTRAIL_SDK_PYTHON_APIKEY')
+        if api_secret is None:
+            api_secret = os.environ.get('BLOCKTRAIL_SDK_APISECRET', 'EXAMPLE_BLOCKTRAIL_SDK_PYTHON_APISECRET')
+
         return blocktrail.APIClient(api_key, api_secret, debug=debug)
 
     def test_coin_value(self):

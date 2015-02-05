@@ -1,14 +1,18 @@
 language: python
-
 python:
-  - 2.7
-  - 3.3
-  - 3.4
-
+- 2.7
+- 3.3
+- 3.4
 install:
- - "pip install -r requirements.txt"
- - "pip install pep8"
-
+- pip install -r requirements.txt
+- pip install pep8
 script:
- - python setup.py test
- - pep8 --ignore=E501 ./blocktrail/
+- python setup.py test
+- pep8 --ignore=E501 ./blocktrail/
+env:
+  global:
+  - secure: lIfyjEQO/lp6sSrJD907h5nm0qfV/InBGoaZsmHB8MKxUFFMhfu0LJP3E5CzAY/MGhG3dfdPWH71QB95LR8seORGNSL6FyAQ27zC+aF/NS2+z8C5muIHf1M/QCUdkUl3n3mUGVCz0e9xxA6kZcdmNYIfxQQsQrqZdgTUUhDCRvU=
+  - secure: bR5iT3Q8EkJ8GXdbiqFvtysJf240LYIagADELWIR3HrJsSHQ6d01uu8JGULwMY6kNkU7LJ2+/1VmMgquGaFFQMhgCWmEG1eck7WJeB6rKYEeH9w8I2W/3S8q307VARb/r/epYaQhT336F7q7S3EDEpJgCq37Ez7uMr62ZdijbgM=
+notifications:
+  slack:
+    secure: FH3erbMsEWouI0uLRgm40yflGIENKEvNVjKT679en1Th5pvsHYzyGLdu0mBab5Te3ZRU9lxU9SQ2WC32KG2vw8S+uyxQHjOi7pC5avQ4JFF43qhz2l2YR4eaYwfH1b0sAOHP1h5uirNJmsaFIURP080z1ETdlNri5+QNDdf1IBE=

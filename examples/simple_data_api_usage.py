@@ -1,7 +1,7 @@
 from __future__ import print_function
 import blocktrail
 
-client = blocktrail.APIClient("MY_APIKEY", "MY_APISECRET")
+client = blocktrail.APIClient("YOUR_APIKEY_HERE", "YOUR_APISECRET_HERE")
 
 address = client.address("1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp")
 print(address['address'], address['balance'])
