@@ -8,7 +8,7 @@ if sys.version_info[0] == 3 and sys.version_info[1] == 2:
 
 setup(
     name='blocktrail-sdk',
-    version='1.0.3',
+    version='1.0.4',
     description="BlockTrail's Developer Friendly API binding for Python",
     long_description='This package allows interacting with the BlockTrail API',
     maintainer='Ruben de Vries',
