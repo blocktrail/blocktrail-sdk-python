@@ -8,7 +8,7 @@ install:
 - pip install pep8
 script:
 - python setup.py test
-- pep8 --ignore=E501 ./blocktrail/
+- pep8 --ignore=E501,E402 ./blocktrail/
 env:
   global:
   - secure: lIfyjEQO/lp6sSrJD907h5nm0qfV/InBGoaZsmHB8MKxUFFMhfu0LJP3E5CzAY/MGhG3dfdPWH71QB95LR8seORGNSL6FyAQ27zC+aF/NS2+z8C5muIHf1M/QCUdkUl3n3mUGVCz0e9xxA6kZcdmNYIfxQQsQrqZdgTUUhDCRvU=
