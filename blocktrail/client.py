@@ -1,4 +1,8 @@
+import os
 from blocktrail import connection
+from blocktrail.wallet import Wallet
+from mnemonic.mnemonic import Mnemonic
+from pycoin.key.BIP32Node import BIP32Node
 
 
 class APIClient(object):
@@ -14,9 +18,12 @@ class APIClient(object):
         :param bool     debug:          print debug information when requests fail
         """
 
+        self.testnet = testnet
+
         if api_endpoint is None:
             network = ("t" if testnet else "") + network.upper()
-            api_endpoint = "https://api.blocktrail.com/%s/%s" % (api_version, network)
+            api_endpoint =  os.environ.get('BLOCKTRAIL_SDK_API_ENDPOINT', "https://api.blocktrail.com")
+            api_endpoint = "%s/%s/%s" % (api_endpoint, api_version, network)
 
         self.client = connection.RestClient(api_endpoint=api_endpoint, api_key=api_key, api_secret=api_secret, debug=debug)
 
@@ -330,3 +337,88 @@ class APIClient(object):
         ))
 
         return response.json()['result']
+
+
+    def _create_new_wallet(self, identifier, primary_public_key, backup_public_key, primary_mnemonic, checksum, key_index):
+        response = self.client.post("/wallet", data={
+            'identifier': identifier,
+            'primary_public_key': primary_public_key,
+            'backup_public_key': backup_public_key,
+            'primary_mnemonic': primary_mnemonic,
+            'checksum': checksum,
+            'key_index': key_index,
+        }, auth=True)
+
+        return response.json()
+
+    def init_wallet(self, identifier, passphrase):
+        netcode = "XTN" if self.testnet else "BTC"
+
+        data = self.get_wallet(identifier)
+
+        key_index = 9999
+        primary_seed = Mnemonic.to_seed(data['primary_mnemonic'], passphrase)
+        primary_private_key = BIP32Node.from_master_secret(primary_seed, netcode=netcode)
+
+        backup_public_key = BIP32Node.from_hwif(data['backup_public_key'][0])
+
+        checksum = ""
+
+        blocktrail_public_keys = data['blocktrail_public_keys']
+        key_index = data['key_index']
+
+        return Wallet(
+            client=self,
+            identifier=identifier,
+            primary_mnemonic=data['primary_mnemonic'],
+            primary_private_key=primary_private_key,
+            backup_public_key=backup_public_key,
+            blocktrail_public_keys=blocktrail_public_keys,
+            key_index=key_index,
+            testnet=self.testnet
+        )
+
+    def get_wallet(self, identifier):
+        response = self.client.get("/wallet/%s" % (identifier, ), auth=True)
+
+        return response.json()
+
+    def get_wallet_balance(self, identifier):
+        response = self.client.get("/wallet/%s/balance" % (identifier, ), auth=True)
+
+        return response.json()
+
+    def get_new_derivation(self, identifier, path):
+        response = self.client.post("/wallet/%s/path" % (identifier, ), data={
+            'path': path,
+        }, auth=True)
+
+        return response.json()
+
+    def coin_selection(self, identifier, outputs, lockUTXO=False, allow_zero_conf=False):
+        response = self.client.post(
+            "/wallet/%s/coin-selection" % (identifier, ),
+            params={
+                'lock': lockUTXO,
+                'zeroconf': allow_zero_conf
+            },
+            data=outputs,
+            auth=True
+        )
+
+        return response.json()
+
+    def send_transaction(self, identifier, raw_tx, paths, check_fee=False):
+        response = self.client.post(
+            "/wallet/%s/send" % (identifier, ),
+            params={
+                'check_fee': check_fee
+            },
+            data={
+                'raw_transaction': raw_tx,
+                'paths': paths
+            },
+            auth=True
+        )
+
+        return response.json()

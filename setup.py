@@ -24,11 +24,13 @@ setup(
     ],
     packages=["blocktrail"],
     install_requires=[
-        'httpsig >= 1.1.0',
-        'pycrypto >= 2.6.1',
-        'requests >= 2.4.3',
-        'future >= 0.14.3',
-        'six >= 1.9.0',
+        'httpsig >= 1.1.0, < 1.2',
+        'pycrypto >= 2.6.1, < 2.7',
+        'requests >= 2.4.3, < 2.5',
+        'future >= 0.14.3, < 0.15',
+        'six >= 1.9.0, < 1.10',
+        'pycoin >= 0.52, < 1.0',
+        'mnemonic == 0.12'
     ],
     test_suite="tests.get_tests",
 )
