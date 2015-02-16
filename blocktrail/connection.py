@@ -56,17 +56,24 @@ class RestClient(object):
         :param bool     auth:           do HMAC auth
         :rtype: requests.Response
         """
+        endpoint_url = self.api_endpoint + endpoint_url
+
         if auth is True:
             auth = self.auth
 
-        headers = dict_merge(self.default_headers, {
-            'Date': RestClient.httpdate(datetime.datetime.utcnow()),
-            'Content-MD5': RestClient.content_md5("")
-        })
-
         params = dict_merge(self.default_params, params)
 
-        response = requests.get(self.api_endpoint + endpoint_url, params=params, headers=headers, auth=auth)
+        params['api_kdy'] = 'ruben1'
+        params['api_kfy'] = 'ruben1'
+
+        params = RestClient.sort_params(params)
+
+        headers = dict_merge(self.default_headers, {
+            'Date': RestClient.httpdate(datetime.datetime.utcnow()),
+            'Content-MD5': RestClient.content_md5(urlparse(endpoint_url).path + "?" + urlencode(params))
+        })
+
+        response = requests.get(endpoint_url, params=params, headers=headers, auth=auth)
 
         return self.handle_response(response)
 
@@ -77,8 +84,13 @@ class RestClient(object):
         :param bool     auth:           do HMAC auth
         :rtype: requests.Response
         """
+        endpoint_url = self.api_endpoint + endpoint_url
+
         if auth is True:
             auth = self.auth
+
+        params = dict_merge(self.default_params, params)
+        params = RestClient.sort_params(params)
 
         # do the post body encoding here since we need it to get the MD5
         data = json.dumps(data)
@@ -89,8 +101,7 @@ class RestClient(object):
             'Content-Type': 'application/json'
         })
 
-        params = dict_merge(self.default_params, params)
-        response = requests.post(self.api_endpoint + endpoint_url, data=data, params=params, headers=headers, auth=auth)
+        response = requests.post(endpoint_url, data=data, params=params, headers=headers, auth=auth)
 
         return self.handle_response(response)
 
@@ -101,8 +112,13 @@ class RestClient(object):
         :param bool     auth:           do HMAC auth
         :rtype: requests.Response
         """
+        endpoint_url = self.api_endpoint + endpoint_url
+
         if auth is True:
             auth = self.auth
+
+        params = dict_merge(self.default_params, params)
+        params = RestClient.sort_params(params)
 
         # do the post body encoding here since we need it to get the MD5
         data = json.dumps(data)
@@ -113,8 +129,7 @@ class RestClient(object):
             'Content-Type': 'application/json'
         })
 
-        params = dict_merge(self.default_params, params)
-        response = requests.put(self.api_endpoint + endpoint_url, data=data, params=params, headers=headers, auth=auth)
+        response = requests.put(endpoint_url, data=data, params=params, headers=headers, auth=auth)
 
         return self.handle_response(response)
 
@@ -125,20 +140,28 @@ class RestClient(object):
         :param bool     auth:           do HMAC auth
         :rtype: requests.Response
         """
+        endpoint_url = self.api_endpoint + endpoint_url
+
         if auth is True:
             auth = self.auth
 
-        data = json.dumps(data)
-
         params = dict_merge(self.default_params, params)
+        params = RestClient.sort_params(params)
+
+        if data:
+            # do the post body encoding here since we need it to get the MD5
+            data = json.dumps(data)
+            content_md5 = RestClient.content_md5(data)
+        else:
+            content_md5 = RestClient.content_md5(urlparse(endpoint_url).path + "?" + urlencode(params))
 
         headers = dict_merge(self.default_headers, {
             'Date': RestClient.httpdate(datetime.datetime.utcnow()),
-            'Content-MD5': RestClient.content_md5(urlparse(self.api_endpoint + endpoint_url).path + "?" + urlencode(params)),
+            'Content-MD5': content_md5,
             'Content-Type': 'application/json'
         })
 
-        response = requests.delete(self.api_endpoint + endpoint_url, data=data, params=params, headers=headers, auth=auth)
+        response = requests.delete(endpoint_url, data=data, params=params, headers=headers, auth=auth)
 
         return self.handle_response(response)
 
@@ -157,24 +180,28 @@ class RestClient(object):
         elif self.debug:
             print(response.url, response.status_code, response.content)
 
-        if response.status_code == 400 or response.status_code == 403:
+        data = {}
+        try:
             data = response.json()
+        except Exception:
+            pass
 
+        if response.status_code == 400 or response.status_code == 403:
             if data and data['msg'] and data['code']:
                 raise EndpointSpecificError(msg=data['msg'], code=data['code'])
             else:
                 raise UnknownEndpointSpecificError(EXCEPTION_UNKNOWN_ENDPOINT_SPECIFIC_ERROR)
         elif response.status_code == 401:
-            raise InvalidCredentials(msg=EXCEPTION_INVALID_CREDENTIALS, code=401)
+            raise InvalidCredentials(msg=data.get('msg', EXCEPTION_INVALID_CREDENTIALS), code=401)
         elif response.status_code == 404:
             if response.reason == "Endpoint Not Found":
-                raise MissingEndpoint(msg=EXCEPTION_MISSING_ENDPOINT, code=404)
+                raise MissingEndpoint(msg=data.get('msg', EXCEPTION_MISSING_ENDPOINT), code=404)
             else:
-                raise ObjectNotFound(msg=EXCEPTION_OBJECT_NOT_FOUND, code=404)
+                raise ObjectNotFound(msg=data.get('msg', EXCEPTION_OBJECT_NOT_FOUND), code=404)
         elif response.status_code == 500:
-            raise GenericServerError(msg=EXCEPTION_GENERIC_SERVER_ERROR, code=response.status_code)
+            raise GenericServerError(msg=data.get('msg', EXCEPTION_GENERIC_SERVER_ERROR), code=response.status_code)
         else:
-            raise GenericHTTPError(msg=EXCEPTION_GENERIC_HTTP_ERROR, code=response.status_code)
+            raise GenericHTTPError(msg=data.get('msg', EXCEPTION_GENERIC_HTTP_ERROR), code=response.status_code)
 
     @classmethod
     def content_md5(cls, content=""):
@@ -191,6 +218,10 @@ class RestClient(object):
         month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
                  "Oct", "Nov", "Dec"][dt.month - 1]
         return "%s, %02d %s %04d %02d:%02d:%02d GMT" % (weekday, dt.day, month, dt.year, dt.hour, dt.minute, dt.second)
+
+    @classmethod
+    def sort_params(cls, params):
+        return sorted([(k, v) for k, v in params.items()], key=lambda t: t[0])
 
 
 def dict_merge(dict1, dict2):

@@ -19,3 +19,4 @@ def to_btc(satoshi):
 from blocktrail import connection
 from blocktrail import exceptions
 from blocktrail.client import APIClient
+from blocktrail.wallet import Wallet
