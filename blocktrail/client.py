@@ -1,8 +1,8 @@
 import os
+from bitcoin.deterministic import bip32_master_key, TESTNET_PRIVATE, MAINNET_PRIVATE
 from blocktrail import connection
 from blocktrail.wallet import Wallet
 from mnemonic.mnemonic import Mnemonic
-from pycoin.key.BIP32Node import BIP32Node
 
 
 class APIClient(object):
@@ -352,15 +352,15 @@ class APIClient(object):
         return response.json()
 
     def init_wallet(self, identifier, passphrase):
-        netcode = "XTN" if self.testnet else "BTC"
+        vbytes = TESTNET_PRIVATE if self.testnet else MAINNET_PRIVATE
 
         data = self.get_wallet(identifier)
 
         key_index = 9999
         primary_seed = Mnemonic.to_seed(data['primary_mnemonic'], passphrase)
-        primary_private_key = BIP32Node.from_master_secret(primary_seed, netcode=netcode)
+        primary_private_key = bip32_master_key(primary_seed, vbytes=vbytes)
 
-        backup_public_key = BIP32Node.from_hwif(data['backup_public_key'][0])
+        backup_public_key = data['backup_public_key'][0]
 
         checksum = ""
 

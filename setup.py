@@ -22,15 +22,18 @@ setup(
         'Programming Language :: Python',
         'License :: OSI Approved :: MIT License'
     ],
+    dependency_links=[
+        'git+https://github.com/vbuterin/pybitcointools#bitcoin'
+    ],
     packages=["blocktrail"],
     install_requires=[
         'httpsig >= 1.1.0, < 1.2',
         'pycrypto >= 2.6.1, < 2.7',
         'requests >= 2.4.3, < 2.5',
         'future >= 0.14.3, < 0.15',
-        'six >= 1.9.0, < 1.10',
-        'pycoin >= 0.52, < 1.0',
-        'mnemonic == 0.12'
+        'six >= 1.8.0, < 1.10',
+        'mnemonic == 0.12',
+        'bitcoin'
     ],
     test_suite="tests.get_tests",
 )

@@ -1,2 +1,7 @@
-# use setup.py for dependancies
--e .
+-e git+https://github.com/blocktrail/pybitcointools#egg=bitcoin
+httpsig >= 1.1.0, < 1.2
+pycrypto >= 2.6.1, < 2.7
+requests >= 2.4.3, < 2.5
+future >= 0.14.3, < 0.15
+six >= 1.8.0, < 1.10
+mnemonic == 0.12

@@ -1,14 +1,22 @@
-from pycoin.key.BIP32Node import BIP32Node
-from pycoin.scripts.genwallet import b2h
-from pycoin.serialize import b2h_rev, h2b
-from pycoin.tx.Spendable import Spendable
-from pycoin.tx.pay_to import ScriptMultisig, address_for_pay_to_script, build_hash160_lookup
-from pycoin.tx.tx_utils import create_tx
+from bitcoin.deterministic import bip32_ckd, bip32_extract_key, bip32_privtopub
+from bitcoin.transaction import mk_multisig_script, p2sh_scriptaddr, mktx, multisign, serialize, deserialize, \
+    apply_multisignatures
 
 VERIFY_NEW_DERIVATIONS = True
 
-class Wallet(object):
 
+def bip32_build_key(data, path):
+    path = path.replace("M/", "")
+    path = path.split("/")
+
+    for p in path:
+        p = int(p.replace("'", "")) + 2**31 if "'" in p else int(p)
+        data = bip32_ckd(data, p)
+
+    return data
+
+
+class Wallet(object):
 
     def __init__(self, client, identifier, primary_mnemonic, primary_private_key, backup_public_key, blocktrail_public_keys, key_index, testnet):
         """
@@ -21,10 +29,10 @@ class Wallet(object):
         self.primary_private_key = primary_private_key
         self.backup_public_key = backup_public_key
 
-        self.blocktrail_public_keys = dict([(str(key_index), BIP32Node.from_hwif(key[0])) for key_index, key in blocktrail_public_keys.items()])
+        self.blocktrail_public_keys = dict([(str(key_index), key[0]) for key_index, key in blocktrail_public_keys.items()])
         self.key_index = int(key_index)
         self.testnet = testnet
-        self.netcode = "XTN" if self.testnet else "BTC"
+        self.p2sh_magicbyte = 0xc4 if self.testnet else 0x05
 
     def get_new_address_pair(self):
         path = self.get_new_derivation()
@@ -39,26 +47,27 @@ class Wallet(object):
         path = result['path']
 
         if VERIFY_NEW_DERIVATIONS:
-            if result['address'] != self.get_address_by_path(path):
-                raise Exception("Failed to verify that address from API matches address locally")
+            address = self.get_address_by_path(path)
+            if result['address'] != address:
+                raise Exception("Failed to verify that address from API [%s] matches address locally [%s]" % (result['address'], address))
 
         return path
 
     def get_address_by_path(self, path):
-        path = path.replace("M/", "")
-        key_index = path.split("/")[0].replace("'", "")
+        key_index = path.split("/")[1].replace("'", "")
 
-        key = self.primary_private_key.subkey_for_path(path)
-        backup_public_key = self.backup_public_key.subkey_for_path(path.replace("'", ""))
-        blocktrail_public_key = self.blocktrail_public_keys[str(key_index)].subkey_for_path("/".join(path.split("/")[1:]))
+        primary_public_key = bip32_privtopub(bip32_build_key(self.primary_private_key, path))
 
-        script = ScriptMultisig(2, sorted([
-            key.sec(use_uncompressed=False),
-            backup_public_key.sec(use_uncompressed=False),
-            blocktrail_public_key.sec(use_uncompressed=False),
-        ])).script()
+        backup_public_key = bip32_build_key(self.backup_public_key, path.replace("'", ""))
+        blocktrail_public_key = bip32_build_key(self.blocktrail_public_keys[str(key_index)], "/".join(path.split("/")[2:]))
 
-        return address_for_pay_to_script(script, netcode=self.netcode)
+        script = mk_multisig_script(sorted([
+            bip32_extract_key(primary_public_key),
+            bip32_extract_key(backup_public_key),
+            bip32_extract_key(blocktrail_public_key),
+        ]), 2, 3)
+
+        return p2sh_scriptaddr(script, magicbyte=self.p2sh_magicbyte)
 
     def get_balance(self):
         balance_info = self.client.get_wallet_balance(self.identifier)
@@ -86,33 +95,21 @@ class Wallet(object):
 
             send[change_address] = change
 
-        print(utxos)
+        spendables = [dict(
+            value=utxo['value'],
+            address=utxo['address'],
+            output="%s:%s" % (utxo['hash'], utxo['idx'])
+        ) for utxo in utxos]
 
-        spendables = [Spendable.from_dict(dict(
-            coin_value=utxo['value'],
-            script_hex=utxo['redeem_script'],
-            tx_hash_hex=b2h_rev(h2b(utxo['hash'])),
-            tx_out_index=utxo['idx']
-        )) for utxo in utxos]
+        tx = mktx(spendables, [{'address': address, 'value': value} for address, value in send.items()])
 
-        print(spendables, send)
-
-        tx = create_tx(spendables, send)
-
-        keys = []
+        i = 0
         for utxo in utxos:
-            path = utxo['path'].replace("M/", "")
-            key = self.primary_private_key.subkey_for_path(path)
-            keys.append(key)
+            key = bip32_build_key(self.primary_private_key, utxo['path'])
+            tx = apply_multisignatures(tx, i, utxo['redeem_script'], [multisign(tx, i, utxo['redeem_script'], bip32_extract_key(key))])
+            i += 1
 
-        hash160_lookup = build_hash160_lookup(key.secret_exponent() for key in keys)
-        tx.sign(hash160_lookup=hash160_lookup)
-
-        print(tx, tx.as_hex(include_unspents=True))
-
-        signed = self.client.send_transaction(self.identifier, tx.as_hex(include_unspents=True), [utxo['path'] for utxo in utxos], check_fee=True)
-
-        print(signed)
+        signed = self.client.send_transaction(self.identifier, tx, [utxo['path'] for utxo in utxos], check_fee=True)
 
         return signed['txid']
 

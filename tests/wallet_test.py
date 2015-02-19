@@ -4,9 +4,12 @@ import unittest
 import os
 import binascii
 import time
+from bitcoin.deterministic import bip32_master_key, TESTNET_PRIVATE, MAINNET_PRIVATE, bip32_privtopub, bip32_ckd, \
+    bip32_descend, bip32_deserialize
+from bitcoin import safe_hexlify
 import blocktrail
-from pycoin.key.BIP32Node import BIP32Node
 from mnemonic import Mnemonic
+
 
 class WalletTestCase(unittest.TestCase):
     def setUp(self):
@@ -42,22 +45,22 @@ class WalletTestCase(unittest.TestCase):
 
     def create_test_wallet(self, client, identifier, passphrase, primary_mnemonic, backup_mnemonic):
         testnet = True
-        netcode = "XTN" if testnet else "BTC"
+        vbytes = TESTNET_PRIVATE if testnet else MAINNET_PRIVATE
         key_index = 9999
         primary_seed = Mnemonic.to_seed(primary_mnemonic, passphrase)
-        primary_private_key = BIP32Node.from_master_secret(primary_seed, netcode=netcode)
+        primary_private_key = bip32_master_key(primary_seed, vbytes=vbytes)
 
-        primary_public_key = primary_private_key.subkey_for_path("%d'.pub" % key_index)
+        primary_public_key = bip32_privtopub(bip32_ckd(primary_private_key, key_index + 2**31))
 
         backup_seed = Mnemonic.to_seed(backup_mnemonic, "")
-        backup_public_key = BIP32Node.from_master_secret(backup_seed, netcode=netcode).public_copy()
+        backup_public_key = bip32_privtopub(bip32_master_key(backup_seed, vbytes=vbytes))
 
         checksum = ""
 
         result = client._create_new_wallet(
             identifier=identifier,
-            primary_public_key=(primary_public_key.as_text(), "M/%d'" % key_index),
-            backup_public_key=(backup_public_key.as_text(), "M"),
+            primary_public_key=(primary_public_key, "M/%d'" % key_index),
+            backup_public_key=(backup_public_key, "M"),
             primary_mnemonic=primary_mnemonic,
             checksum=checksum,
             key_index=9999
@@ -82,6 +85,16 @@ class WalletTestCase(unittest.TestCase):
         time.time()
         return "py-sdk-" + str(int(time.time())) + "-" + binascii.hexlify(bytes).decode("utf-8")
 
+    def test_bip32(self):
+        master = "tpubD9q6vq9zdP3gbhpjs7n2TRvT7h4PeBhxg1Kv9jEc1XAss7429VenxvQTsJaZhzTk54gnsHRpgeeNMbm1QTag4Wf1QpQ3gy221GDuUCxgfeZ"
+
+        vbytes, depth, fingerprint, i, chaincode, key = bip32_deserialize(master)
+
+        assert (safe_hexlify(key) == "022f6b9339309e89efb41ecabae60e1d40b7809596c68c03b05deb5a694e33cd26")
+
+        assert bip32_ckd(master, "0") == "tpubDAtJthHcm9MJwmHp4r2UwSTmiDYZWHbQUMqySJ1koGxQpRNSaJdyL2Ab8wwtMm5DsMMk3v68299LQE6KhT8XPQWzxPLK5TbTHKtnrmjV8Gg"
+        assert bip32_ckd(bip32_ckd(master, "0"), "0") == "tpubDDfqpEKGqEVa5FbdLtwezc6Xgn81teTFFVA69ZfJBHp4UYmUmhqVZMmqXeJBDahvySZrPjpwMy4gKfNfrxuFHmzo1r6srB4MrsDKWbwEw3d"
+
     def test_create_wallet(self):
         client = self.setup_api_client()
 
@@ -96,7 +109,9 @@ class WalletTestCase(unittest.TestCase):
 
         assert wallet.primary_mnemonic == "give pause forget seed dance crawl situate hole keen"
         assert wallet.identifier == identifier
-        assert wallet.blocktrail_public_keys['9999'].as_text() == "tpubD9q6vq9zdP3gbhpjs7n2TRvT7h4PeBhxg1Kv9jEc1XAss7429VenxvQTsJaZhzTk54gnsHRpgeeNMbm1QTag4Wf1QpQ3gy221GDuUCxgfeZ"
+        assert wallet.blocktrail_public_keys['9999'] == "tpubD9q6vq9zdP3gbhpjs7n2TRvT7h4PeBhxg1Kv9jEc1XAss7429VenxvQTsJaZhzTk54gnsHRpgeeNMbm1QTag4Wf1QpQ3gy221GDuUCxgfeZ"
+
+        assert wallet.get_address_by_path("M/9999'/0/0") == "2MzyKviSL6pnWxkbHV7ecFRE3hWKfzmT8WS"
 
         path, address = wallet.get_new_address_pair()
         assert path == "M/9999'/0/0"
@@ -106,7 +121,6 @@ class WalletTestCase(unittest.TestCase):
         assert path == "M/9999'/0/1"
         assert address == "2N65RcfKHiKQcPGZAA2QVeqitJvAQ8HroHD"
 
-        print(wallet.get_address_by_path("M/9999'/0/1"))
         assert wallet.get_address_by_path("M/9999'/0/1") == "2N65RcfKHiKQcPGZAA2QVeqitJvAQ8HroHD"
         assert wallet.get_address_by_path("M/9999'/0/6") == "2MynrezSyqCq1x5dMPtRDupTPA4sfVrNBKq"
         assert wallet.get_address_by_path("M/9999'/0/44") == "2N5eqrZE7LcfRyCWqpeh1T1YpMdgrq8HWzh"
