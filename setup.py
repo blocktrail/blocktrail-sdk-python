@@ -24,7 +24,7 @@ setup(
     ],
     packages=["blocktrail"],
     install_requires=[
-        'httpsig',
+        'httpsig-cffi == 15.0.0',
         'requests >= 2.4.3, < 2.5',
         'future >= 0.14.3, < 0.15',
         'six >= 1.9.0',

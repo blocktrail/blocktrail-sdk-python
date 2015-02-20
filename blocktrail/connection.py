@@ -8,7 +8,11 @@ import requests
 import json
 import hashlib
 
-from httpsig.requests_auth import HTTPSignatureAuth
+try:
+    from httpsig_cffi.requests_auth import HTTPSignatureAuth
+except:
+    from httpsig.requests_auth import HTTPSignatureAuth
+
 from requests.models import RequestEncodingMixin
 
 import blocktrail

@@ -1,7 +1,14 @@
 import unittest
 import hashlib
-import httpsig.sign as sign
-from httpsig.utils import parse_authorization_header
+
+
+try:
+    import httpsig_cffi as sign
+    from httpsig_cffi.utils import parse_authorization_header
+except:
+    import httpsig as sign
+    from httpsig.utils import parse_authorization_header
+
 from requests.models import RequestEncodingMixin
 
 
