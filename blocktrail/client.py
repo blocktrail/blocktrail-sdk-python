@@ -312,3 +312,21 @@ class APIClient(object):
         response = self.client.get("/price")
 
         return response.json()
+
+    def verify_message(self, message, address, signature):
+        """
+        verify message signed bitcoin-core style
+
+        :param str      message:
+        :param str      address:
+        :param str      signature:
+        :rtype: dict
+        """
+
+        response = self.client.post("/verify_message", dict(
+            message=message,
+            address=address,
+            signature=signature
+        ))
+
+        return response.json()['result']

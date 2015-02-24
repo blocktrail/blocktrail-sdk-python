@@ -245,6 +245,16 @@ class ApiClientTestCase(unittest.TestCase):
         result = client.price()
         assert result and 'USD' in result
 
+    def test_verify_message(self):
+        client = self.setup_api_client()
+
+        address = "1F26pNMrywyZJdr22jErtKcjF8R3Ttt55G"
+        message = address
+        signature = "H85WKpqtNZDrajOnYDgUY+abh0KCAcOsAIOQwx2PftAbLEPRA7mzXA/CjXRxzz0MC225pR/hx02Vf2Ag2x33kU4="
+
+        result = client.verify_message(message, address, signature)
+        assert result
+
 
 if __name__ == "__main__":
     unittest.main()
