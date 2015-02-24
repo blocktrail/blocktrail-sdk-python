@@ -140,7 +140,8 @@ class Wallet(object):
 
     def delete_wallet(self):
         # can't right now because we can't create a signature
-        return False
+        raise Exception("Not implemented")
+
         address, signature = self.create_checksum_signature()
         result = self.client.delete_wallet(self.identifier, address, signature)
 
