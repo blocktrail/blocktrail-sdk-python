@@ -9,8 +9,20 @@ if sys.version_info[0] == 3 and sys.version_info[1] == 2:
 setup(
     name='blocktrail-sdk',
     version='1.0.5',
-    description="BlockTrail's Developer Friendly API binding for Python",
-    long_description='This package allows interacting with the BlockTrail API',
+    description="BlockTrail's Developer Friendly Bitcoin SDK",
+    long_description="""\
+BlockTrail's Developer Friendly Bitcoin SDK
+
+ - simple bindings to the various data API endpoints
+    - block data and transactions
+    - transaction data
+    - address data and transactions
+    - latest price
+ - Contains Multi-Signature HD Wallet
+
+For examples and instructions on how to use, please see our official documentation at https://www.blocktrail.com/api/docs/lang/python
+""",
+    keywords=["bitcoin", "sdk", "api", "payments", "crypto", "wallet", "multisig", "multisignature", "HD wallet"],
     maintainer='Ruben de Vries',
     maintainer_email='ruben@blocktrail.com',
     url='https://www.blocktrail.com/api/docs/lang/python',
@@ -20,6 +32,7 @@ setup(
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License'
     ],
     packages=["blocktrail"],
