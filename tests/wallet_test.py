@@ -33,7 +33,7 @@ class WalletTestCase(unittest.TestCase):
             except Exception:
                 pass
 
-    def setup_api_client(self, api_key=None, api_secret=None, debug=True):
+    def setup_api_client(self, api_key=None, api_secret=None, debug=False):
         if api_key is None:
             api_key = os.environ.get('BLOCKTRAIL_SDK_APIKEY', 'EXAMPLE_BLOCKTRAIL_SDK_PYTHON_APIKEY')
         if api_secret is None:
