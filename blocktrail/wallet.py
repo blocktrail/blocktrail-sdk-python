@@ -1,3 +1,4 @@
+import struct
 import random
 from pycoin.key.BIP32Node import BIP32Node
 from bitcoin.core import x, b2x, lx, COutPoint, CMutableTxOut, CMutableTxIn, CMutableTransaction
@@ -116,7 +117,7 @@ class Wallet(object):
 
             ckey = CBitcoinSecret(key.wif())
 
-            sig = ckey.sign(sighash) + bytes([SIGHASH_ALL])
+            sig = ckey.sign(sighash) + struct.pack("B", SIGHASH_ALL)
 
             txins[idx].scriptSig = CScript([OP_0, sig, redeemScript])
 
