@@ -66,7 +66,7 @@ class WalletTestCase(unittest.TestCase):
         backup_seed = Mnemonic.to_seed(backup_mnemonic, "")
         backup_public_key = BIP32Node.from_master_secret(backup_seed, netcode=netcode).public_copy()
 
-        checksum = ""
+        checksum = blocktrail.APIClient.create_checksum(primary_private_key)
 
         result = client._create_new_wallet(
             identifier=identifier,

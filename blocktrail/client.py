@@ -1,4 +1,6 @@
 import os
+from bitcoin import SelectParams
+from bitcoin.wallet import CBitcoinSecret, P2PKHBitcoinAddress
 from blocktrail import connection
 from blocktrail.wallet import Wallet
 from mnemonic.mnemonic import Mnemonic
@@ -19,6 +21,8 @@ class APIClient(object):
         """
 
         self.testnet = testnet
+
+        SelectParams('testnet' if self.testnet else 'mainnet')
 
         if api_endpoint is None:
             network = ("t" if testnet else "") + network.upper()
@@ -364,7 +368,7 @@ class APIClient(object):
         backup_seed = Mnemonic.to_seed(backup_mnemonic, "")
         backup_public_key = BIP32Node.from_master_secret(backup_seed, netcode=netcode).public_copy()
 
-        checksum = ""
+        checksum = self.create_checksum(primary_private_key)
 
         result = self._create_new_wallet(
             identifier=identifier,
@@ -406,14 +410,14 @@ class APIClient(object):
 
         data = self.get_wallet(identifier)
 
-        key_index = 9999
         primary_seed = Mnemonic.to_seed(data['primary_mnemonic'], passphrase)
         primary_private_key = BIP32Node.from_master_secret(primary_seed, netcode=netcode)
 
         backup_public_key = BIP32Node.from_hwif(data['backup_public_key'][0])
 
-        checksum = ""
-        # FIXME: checksum check
+        checksum = self.create_checksum(primary_private_key)
+        if checksum != data['checksum']:
+            raise Exception("Checksum [%s] does not match expected checksum [%s], most likely due to incorrect password" % (checksum, data['checksum']))
 
         blocktrail_public_keys = data['blocktrail_public_keys']
         key_index = data['key_index']
@@ -428,6 +432,13 @@ class APIClient(object):
             key_index=key_index,
             testnet=self.testnet
         )
+
+    @staticmethod
+    def create_checksum(key):
+        key = CBitcoinSecret(key.wif())
+        address = P2PKHBitcoinAddress.from_pubkey(key.pub)
+
+        return str(address)
 
     def get_wallet(self, identifier):
         response = self.client.get("/wallet/%s" % (identifier, ), auth=True)

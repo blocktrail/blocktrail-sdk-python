@@ -1,9 +1,7 @@
 import random
 from pycoin.key.BIP32Node import BIP32Node
-from bitcoin import SelectParams
-from bitcoin.core import x, b2x, lx, COIN, COutPoint, CMutableTxOut, CMutableTxIn, CMutableTransaction, Hash160
-from bitcoin.core.script import CScript, OP_DUP, OP_HASH160, OP_EQUALVERIFY, OP_CHECKSIG, SignatureHash, SIGHASH_ALL, OP_CHECKMULTISIG, OP_0
-from bitcoin.core.scripteval import VerifyScript, SCRIPT_VERIFY_P2SH
+from bitcoin.core import x, b2x, lx, COutPoint, CMutableTxOut, CMutableTxIn, CMutableTransaction
+from bitcoin.core.script import CScript, SignatureHash, SIGHASH_ALL, OP_CHECKMULTISIG, OP_0
 from bitcoin.wallet import CBitcoinAddress, CBitcoinSecret, P2PKHBitcoinAddress
 
 VERIFY_NEW_DERIVATIONS = True
@@ -24,7 +22,6 @@ class Wallet(object):
         self.blocktrail_public_keys = dict([(str(_key_index), BIP32Node.from_hwif(_key[0])) for _key_index, _key in blocktrail_public_keys.items()])
         self.key_index = int(key_index)
         self.testnet = testnet
-        SelectParams("testnet" if self.testnet else "mainnet")
 
     def get_new_address_pair(self):
         path = self.get_new_derivation()
