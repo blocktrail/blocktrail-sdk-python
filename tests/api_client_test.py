@@ -118,9 +118,9 @@ class ApiClientTestCase(unittest.TestCase):
         client = self.setup_api_client()
 
         # coinbase TX
-        tx = client.transaction("4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b")
+        tx = client.transaction("0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098")
         assert tx and 'hash' in tx and 'confirmations' in tx
-        assert tx['hash'] == "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"
+        assert tx['hash'] == "0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098"
         assert tx['enough_fee'] is None
 
         # random TX 1
