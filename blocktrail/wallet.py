@@ -29,7 +29,7 @@ class Wallet(object):
         self.primary_private_key = primary_private_key
         self.backup_public_key = backup_public_key
 
-        self.blocktrail_public_keys = dict([(str(key_index), key[0]) for key_index, key in blocktrail_public_keys.items()])
+        self.blocktrail_public_keys = dict([(str(_key_index), _key[0]) for _key_index, _key in blocktrail_public_keys.items()])
         self.key_index = int(key_index)
         self.testnet = testnet
         self.p2sh_magicbyte = 0xc4 if self.testnet else 0x05
@@ -106,7 +106,7 @@ class Wallet(object):
         i = 0
         for utxo in utxos:
             key = bip32_build_key(self.primary_private_key, utxo['path'])
-            tx = apply_multisignatures(tx, i, utxo['redeem_script'], [multisign(tx, i, utxo['redeem_script'], bip32_extract_key(key))])
+            tx = apply_multisignatures(tx, i, str(utxo['redeem_script']), [multisign(tx, i, str(utxo['redeem_script']), bip32_extract_key(key))])
             i += 1
 
         signed = self.client.send_transaction(self.identifier, tx, [utxo['path'] for utxo in utxos], check_fee=True)
