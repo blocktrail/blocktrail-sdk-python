@@ -279,6 +279,27 @@ class APIClient(object):
 
         return response.json()
 
+    def subscribe_transaction(self, identifier, transaction, confirmations=6):
+        """
+        subscribes a webhook to events on a particular transaction
+
+        :param str      identifier:     the webhook identifier
+        :param str      transaction:    the transaction hash
+        :param str      confirmations:  the amount of confirmations to send
+        :rtype: dict
+        """
+        response = self.client.post(
+            "/webhook/%s/events" % (identifier, ),
+            data={
+                'event_type': 'transaction',
+                'transaction': transaction,
+                'confirmations': confirmations
+            },
+            auth=True
+        )
+
+        return response.json()
+
     def unsubscribe_address_transactions(self, identifier, address):
         """
         unsubscribes a webhook to transaction events from a particular address
@@ -299,6 +320,18 @@ class APIClient(object):
         :rtype: dict
         """
         response = self.client.delete("/webhook/%s/block" % (identifier, ), auth=True)
+
+        return response.json()
+
+    def unsubscribe_transaction(self, identifier, transaction):
+        """
+        unsubscribes a webhook to to events on a particular transaction
+
+        :param str      identifier:     the webhook identifier
+        :param str      transaction:        the address hash
+        :rtype: dict
+        """
+        response = self.client.delete("/webhook/%s/transaction/%s" % (identifier, transaction), auth=True)
 
         return response.json()
 

@@ -197,20 +197,34 @@ class ApiClientTestCase(unittest.TestCase):
         assert result
         assert result['event_type'] == 'block'
 
+        # add webhook event subscription (transactions)
+        result = client.subscribe_transaction(webhookID2,
+                                              "6a46bf067704284340e64cb963d816b152643e0c156204632f58aec1d751d145", 2)
+        assert result
+        assert result['event_type'] == 'transaction'
+        assert result['address'] is None
+        assert result['transaction'] == '6a46bf067704284340e64cb963d816b152643e0c156204632f58aec1d751d145'
+        assert result['confirmations'] == 2
+
         # get webhook's event subscriptions
         result = client.webhook_events(webhookID2)
         assert result and 'data' in result and 'total' in result
-        assert result['total'] == 2
-        assert len(result['data']) == 2
+        assert result['total'] == 3
+        assert len(result['data']) == 3
 
         assert result['data'][0]['event_type'] == 'address-transactions'
         assert result['data'][1]['event_type'] == 'block'
+        assert result['data'][2]['event_type'] == 'transaction'
 
         # unsubscribe webhook event (address-transaction)
         assert client.unsubscribe_address_transactions(webhookID2, "1dice8EMZmqKvrGE4Qc9bUFf9PX3xaYDp")
 
         # unsubscribe webhook event (block)
         assert client.unsubscribe_new_blocks(webhookID2)
+
+        # unsubscribe webhook event (transaction)
+        assert client.unsubscribe_transaction(webhookID2,
+                                              "6a46bf067704284340e64cb963d816b152643e0c156204632f58aec1d751d145")
 
 
         # batch create webhook events (address-transactions)
